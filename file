@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Saturn Adventure Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #222;
+            color: #fff;
+            padding: 20px;
+            text-align: center; /* Center the text */
+        }
+        .hidden {
+            display: none;
+        }
+        button {
+            background-color: #444;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            margin: 10px; /* Add margin around buttons */
+            cursor: pointer;
+            border-radius: 5px; /* Slightly round the button corners */
+        }
+        button:hover {
+            background-color: #666;
+        }
+        #story {
+            margin: 20px auto; /* Center story text with margin */
+            max-width: 600px; /* Set a maximum width for better readability */
+        }
+        #choices {
+            margin-top: 20px; /* Add space above choices */
+        }
+        #resources {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Welcome to the Saturn Adventure!</h1>
+    <div id="resources">Resources: <span id="resourceCount">0</span></div>
+    <div id="story"></div>
+    <div id="choices" class="hidden"></div>
+
+    <script>
+        // Game variables
+        let resources = 0;
+
+        // Story segments
+        const storySegments = {
+            start: {
+                text: "You find yourself floating in the gaseous atmosphere of Saturn, surrounded by colorful clouds and swirling winds. You see two paths ahead: one leading deeper into the turbulent atmosphere and the other towards a mysterious glowing ring. Which path will you choose?",
+                choices: [
+                    { text: "Dive into the turbulent atmosphere", next: "atmosphere" },
+                    { text: "Explore the mysterious glowing ring", next: "ring" }
+                ]
+            },
+            atmosphere: {
+                text: "As you dive into the atmosphere, the winds whip around you, and you encounter strange, floating creatures. They seem curious but cautious. You can attempt to communicate or search for resources. What will you do?",
+                choices: [
+                    { text: "Communicate with the creatures", next: "communicate" },
+                    { text: "Search for resources", next: "search_resources" }
+                ]
+            },
+            ring: {
+                text: "Approaching the glowing ring, you notice it's composed of shimmering ice particles. As you touch one, you feel a surge of energy! Do you wish to harness this energy or continue your exploration?",
+                choices: [
+                    { text: "Harness the energy", next: "harness" },
+                    { text: "Continue exploring", next: "explore" }
+                ]
+            },
+            search_resources: {
+                text: "You find some energy crystals floating nearby! You collect them and gain resources. Your total resources are now: " + (++resources) + ". What will you do next?",
+                choices: [
+                    { text: "Return to the starting point", next: "start" },
+                    { text: "Dive deeper into the atmosphere", next: "atmosphere" }
+                ]
+            },
+            communicate: {
+                text: "You successfully communicate with the floating creatures, and they offer you a choice: help them solve a puzzle or gain resources. Which will you choose?",
+                choices: [
+                    { text: "Help with the puzzle", next: "puzzle" },
+                    { text: "Collect resources", next: "search_resources" }
+                ]
+            },
+            puzzle: {
+                text: "The creatures present you with a riddle: 'I can fly without wings. I can cry without eyes. Whenever I go, darkness flies. What am I?' Solve the riddle to gain resources.",
+                choices: [
+                    { text: "Answer: Cloud", next: "puzzle_correct" },
+                    { text: "Answer: Star", next: "puzzle_incorrect" }
+                ]
+            },
+            puzzle_correct: {
+                text: "Correct! The creatures reward you with energy crystals. Your total resources are now: " + (++resources) + ". What will you do next?",
+                choices: [
+                    { text: "Continue deeper into the atmosphere", next: "atmosphere" },
+                    { text: "Return to the glowing ring", next: "ring" }
+                ]
+            },
+            puzzle_incorrect: {
+                text: "That's not correct! The creatures are disappointed. You lose some time but gain no resources.",
+                choices: [
+                    { text: "Return to the starting point", next: "start" },
+                    { text: "Dive deeper into the atmosphere", next: "atmosphere" }
+                ]
+            },
+            harness: {
+                text: "You harness the energy from the ring and gain incredible powers! You can now explore the cosmos or face a challenge. What will you do?",
+                choices: [
+                    { text: "Explore beyond Saturn", next: "beyond" },
+                    { text: "Face a combat challenge", next: "combat" }
+                ]
+            },
+            explore: {
+                text: "While exploring the ice particles, you come across a portal that leads to a different dimension. Do you wish to enter?",
+                choices: [
+                    { text: "Enter the portal", next: "portal" },
+                    { text: "Return to the starting point", next: "start" }
+                ]
+            },
+            beyond: {
+                text: "You venture beyond Saturn, exploring distant stars and galaxies. Your journey is just beginning! Congratulations!",
+                choices: []
+            },
+            portal: {
+                text: "You step through the portal and find yourself in a universe of infinite possibilities. What will you do next?",
+                choices: []
+            },
+            combat: {
+                text: "You encounter a hostile creature! Will you fight or flee? Choose your action:",
+                choices: [
+                    { text: "Fight", next: "combat_result" },
+                    { text: "Flee", next: "flee" }
+                ]
+            },
+            combat_result: {
+                text: "You engage in a fierce battle! You successfully defeat the creature and gain resources. Your total resources are now: " + (++resources) + ". What will you do next?",
+                choices: [
+                    { text: "Explore further", next: "beyond" },
+                    { text: "Return to the glowing ring", next: "ring" }
+                ]
+            },
+            flee: {
+                text: "You decide to flee from the creature. In your escape, you stumble upon a hidden cache of resources. Your total resources are now: " + (++resources) + ". What will you do next?",
+                choices: [
+                    { text: "Explore further", next: "beyond" },
+                    { text: "Return to the glowing ring", next: "ring" }
+                ]
+            }
+        };
+
+        // Game functions
+        function startGame() {
+            showStory("start");
+            updateResources();
+        }
+
+        function updateResources() {
+            document.getElementById('resourceCount').innerText = resources;
+        }
+
+        function showStory(segment) {
+            const storyDiv = document.getElementById('story');
+            const choicesDiv = document.getElementById('choices');
+
+            storyDiv.innerHTML = storySegments[segment].text;
+
+            if (storySegments[segment].choices.length > 0) {
+                choicesDiv.innerHTML = '';
+                choicesDiv.classList.remove('hidden');
+                storySegments[segment].choices.forEach(choice => {
+                    const button = document.createElement('button');
+                    button.innerText = choice.text;
+                    button.onclick = () => showStory(choice.next);
+                    choicesDiv.appendChild(button);
+                });
+            } else {
+                choicesDiv.classList.add('hidden');
+            }
+        }
+
+        // Start the game
+        startGame();
+    </script>
+</body>
+</html>
